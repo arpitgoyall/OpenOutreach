@@ -86,9 +86,8 @@ def run_qualification(session, qualifier: BayesianQualifier) -> str | None:
 
     profile_text = _fetch_profile_text(session, lead_id, public_id)
     if not profile_text:
-        logger.warning("No profile text for lead %d \u2014 disqualifying", lead_id)
-        _save_qualification_result(session, qualifier, lead_id, public_id, embedding, 0, "no profile text available")
-        return public_id
+        logger.warning("No profile text for lead %d — skipping (transient, will retry)", lead_id)
+        return None
 
     campaign = session.campaign
     label, reason = qualify_with_llm(

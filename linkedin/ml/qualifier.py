@@ -66,7 +66,7 @@ def qualify_with_llm(profile_text: str, product_docs: str, campaign_objective: s
         profile_text=profile_text,
     )
 
-    llm = ChatOpenAI(model=ai_model, temperature=0.7, api_key=llm_api_key, base_url=llm_api_base, timeout=60)
+    llm = ChatOpenAI(model=ai_model, temperature=0, api_key=llm_api_key, base_url=llm_api_base, timeout=60)
     structured_llm = llm.with_structured_output(QualificationDecision)
     decision = structured_llm.invoke(prompt)
 

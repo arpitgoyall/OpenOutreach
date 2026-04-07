@@ -101,7 +101,7 @@ def run_follow_up_agent(
     llm_api_key, ai_model, llm_api_base = get_llm_config()
     llm = ChatOpenAI(
         model=ai_model,
-        temperature=0.7,
+        temperature=0,
         api_key=llm_api_key,
         base_url=llm_api_base,
         timeout=60,

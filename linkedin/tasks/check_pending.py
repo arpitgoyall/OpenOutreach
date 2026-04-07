@@ -49,7 +49,8 @@ def handle_check_pending(task, session, qualifiers):
     if new_state == ProfileState.CONNECTED:
         enqueue_follow_up(campaign_id, public_id)
     elif new_state == ProfileState.PENDING:
-        new_backoff = backoff_hours * 2
+        MAX_BACKOFF_HOURS = 168  # cap at 1 week
+        new_backoff = min(backoff_hours * 2, MAX_BACKOFF_HOURS)
         with transaction.atomic():
             deal = Deal.objects.filter(
                 lead__public_identifier=public_id,

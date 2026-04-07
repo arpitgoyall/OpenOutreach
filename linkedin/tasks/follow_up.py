@@ -46,8 +46,8 @@ def handle_follow_up(task, session, qualifiers):
         logger.info("[%s] follow_up message for %s: %s", session.campaign, public_id, decision.message)
         sent = send_raw_message(session, profile, decision.message)
         if not sent:
-            set_profile_state(session, public_id, ProfileState.QUALIFIED.value)
-            logger.warning("follow_up for %s: send failed — moving to QUALIFIED for re-connection", public_id)
+            logger.warning("follow_up for %s: send failed — retrying in 1h", public_id)
+            enqueue_follow_up(campaign_id, public_id, delay_seconds=3600)
             return
         session.linkedin_profile.record_action(
             ActionLog.ActionType.FOLLOW_UP, session.campaign,

@@ -145,7 +145,12 @@ def handle_connect(task, session, qualifiers):
 
         if new_state == ProfileState.QUALIFIED:
             # No Connect button found — track attempt, disqualify after MAX_CONNECT_ATTEMPTS
-            attempts = increment_connect_attempts(session, public_id)
+            try:
+                attempts = increment_connect_attempts(session, public_id)
+            except ValueError as e:
+                logger.error("Cannot track connect attempt for %s: %s — skipping", public_id, e)
+                _reschedule()
+                return
             if attempts >= MAX_CONNECT_ATTEMPTS:
                 reason = f"Unreachable: no Connect button after {attempts} attempts"
                 disqualify_lead(public_id)

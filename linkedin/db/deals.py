@@ -25,7 +25,7 @@ def increment_connect_attempts(session, public_id: str) -> int:
         lead__public_identifier=public_id, campaign=session.campaign,
     ).first()
     if not deal:
-        return 1
+        raise ValueError(f"No Deal for {public_id} in campaign {session.campaign} — cannot track connect attempt")
 
     deal.connect_attempts += 1
     deal.save(update_fields=["connect_attempts"])
