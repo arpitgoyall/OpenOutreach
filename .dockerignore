@@ -3,3 +3,13 @@
 .idea
 __pycache__
 .vscode
+.git
+.axon
+.github
+*.kuzu
+kuzu
+kuzu.wal
+data/
+docs/demo.gif
+*.pyc
+*.pyo

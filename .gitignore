@@ -14,3 +14,4 @@ __pycache__/
 /media/
 .cache/
 tests/fixtures/pages/**/*.html
+.axon/
