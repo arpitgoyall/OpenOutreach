@@ -18,7 +18,7 @@ _STATE_LOG_STYLE = {
 
 
 def increment_connect_attempts(session, public_id: str) -> int:
-    """Increment connect_attempts on the Deal and return the new count."""
+    """Increment unreachable_attempts on the Deal and return the new count."""
     from crm.models import Deal
 
     deal = Deal.objects.filter(
@@ -27,16 +27,16 @@ def increment_connect_attempts(session, public_id: str) -> int:
     if not deal:
         raise ValueError(f"No Deal for {public_id} in campaign {session.campaign} — cannot track connect attempt")
 
-    deal.connect_attempts += 1
-    deal.save(update_fields=["connect_attempts"])
-    return deal.connect_attempts
+    deal.unreachable_attempts += 1
+    deal.save(update_fields=["unreachable_attempts"])
+    return deal.unreachable_attempts
 
 
 def _deal_to_profile_dict(deal) -> dict:
     """Convert a Deal (with select_related lead) to a profile dict for lanes."""
     base = deal.lead.to_profile_dict()
     base["meta"] = {
-        "connect_attempts": deal.connect_attempts,
+        "unreachable_attempts": deal.unreachable_attempts,
         "backoff_hours": deal.backoff_hours,
         "reason": deal.reason,
     }
@@ -78,6 +78,7 @@ def set_profile_state(session, public_identifier: str, new_state: str, reason: s
     Campaign-scoped: only finds Deals in the current campaign.
     Raises ValueError if no Deal exists.
     """
+    from django.utils import timezone
     from crm.models import Deal, ClosingReason
 
     deal = Deal.objects.filter(lead__public_identifier=public_identifier, campaign=session.campaign).first()
@@ -97,6 +98,14 @@ def set_profile_state(session, public_identifier: str, new_state: str, reason: s
 
     if ps == ProfileState.COMPLETED:
         deal.closing_reason = ClosingReason.COMPLETED
+
+    if state_changed:
+        entry = {"state": new_state, "at": timezone.now().isoformat()}
+        if reason:
+            entry["reason"] = reason
+        history = list(deal.state_history or [])
+        history.append(entry)
+        deal.state_history = history
 
     deal.save()
 

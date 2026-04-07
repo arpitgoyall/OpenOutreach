@@ -158,7 +158,7 @@ def handle_connect(task, session, qualifiers):
                 logger.warning("Disqualified %s — %s", public_id, reason)
             else:
                 set_profile_state(session, public_id, new_state.value)
-                logger.debug("%s: connect attempt %d/%d — no button found", public_id, attempts, MAX_CONNECT_ATTEMPTS)
+                logger.debug("%s: unreachable attempt %d/%d — no Connect button found", public_id, attempts, MAX_CONNECT_ATTEMPTS)
         else:
             set_profile_state(session, public_id, new_state.value)
             session.linkedin_profile.record_action(

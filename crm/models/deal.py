@@ -35,8 +35,10 @@ class Deal(models.Model):
         default="",
     )
     reason = models.TextField(blank=True, default="")
-    connect_attempts = models.IntegerField(default=0)
+    unreachable_attempts = models.IntegerField(default=0)
+    wait_count = models.IntegerField(default=0)
     backoff_hours = models.IntegerField(default=0)
+    state_history = models.JSONField(default=list)
     creation_date = models.DateTimeField(default=timezone.now)
     update_date = models.DateTimeField(auto_now=True)
 

@@ -70,6 +70,7 @@ def _sync_from_api(session, public_identifier: str, lead, ct):
                 "object_id": lead.pk,
                 "content": parsed["text"],
                 "is_outgoing": is_outgoing,
+                "sender_name": parsed["sender_name"] or "",
                 "owner": session.django_user,
                 **({"creation_date": parsed["delivered_at"]} if parsed["delivered_at"] else {}),
             },
@@ -95,13 +96,9 @@ def _read_from_db(public_identifier: str) -> list[dict]:
     for msg in messages:
         if not msg.content:
             continue
-        if msg.is_outgoing:
-            owner = msg.owner
-            sender = f"{owner.first_name or ''} {owner.last_name or ''}".strip() if owner else "me"
-        else:
-            sender = lead_name
+        sender = msg.sender_name or ("me" if msg.is_outgoing else lead_name)
         result.append({
-            "sender": sender or "me",
+            "sender": sender,
             "text": msg.content,
             "timestamp": msg.creation_date.strftime("%Y-%m-%d %H:%M") if msg.creation_date else "",
             "is_outgoing": msg.is_outgoing,

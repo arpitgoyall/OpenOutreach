@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 
+from django.db import models
 from termcolor import colored
 
 from linkedin.db.deals import get_profile_dict_for_public_id
@@ -58,4 +59,8 @@ def handle_follow_up(task, session, qualifiers):
         set_profile_state(session, public_id, ProfileState.COMPLETED.value, reason=decision.reason)
 
     elif decision.action == "wait":
+        from crm.models import Deal
+        Deal.objects.filter(
+            lead__public_identifier=public_id, campaign=session.campaign,
+        ).update(wait_count=models.F("wait_count") + 1)
         enqueue_follow_up(campaign_id, public_id, delay_seconds=decision.follow_up_hours * 3600)
